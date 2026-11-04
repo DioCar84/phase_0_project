@@ -4,7 +4,7 @@ using TextAnalyser;
 public class UnitTest1
 {
     [Fact]
-    public void HelloWorld_IsTwoWords_ReturnsTrue()
+    public void CountWords_TakesInTwoWords_ReturnsCorrectCount()
     {
         var text = "Hello World";
         var count = WordCounter.CountWords(text);
@@ -12,10 +12,26 @@ public class UnitTest1
     }
 
     [Fact]
-    public void HelloWorld_IsElevenCharacters_ReturnsTrue()
+    public void CountWords_TakesInEmptyString_ReturnsZero()
     {
-        var text = "Hello World";
-        var result = text.Length == 11;
-        Assert.True(result);
+        var text = "";
+        var count = WordCounter.CountWords(text);
+        Assert.Equal(0, count);
+    }
+
+    [Fact]
+    public void CountWords_TakesInWhitespaceOnlyString_ReturnsZero()
+    {
+        var text = "   ";
+        var count = WordCounter.CountWords(text);
+        Assert.Equal(0, count);
+    }
+
+    [Fact]
+    public void CountWords_TakesInStringWithWhiteSpaceCharacters_ReturnsCorrectCount()
+    {
+        var text = "Hello\n\tWorld";
+        var count = WordCounter.CountWords(text);
+        Assert.Equal(2, count);
     }
 }
