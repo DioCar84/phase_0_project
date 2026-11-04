@@ -1,4 +1,6 @@
-﻿try
+﻿using TextAnalyser;
+
+try
 {
     // Open the text file using a stream reader.
     using StreamReader reader = new("TestFile.txt");
@@ -8,6 +10,9 @@
 
     // Write the text to the console.
     Console.WriteLine(text);
+
+    // Count the number of words in the text.
+    Console.WriteLine($"Word count: {WordCounter.CountWords(text)}");
 }
 catch (IOException e)
 {
