@@ -26,10 +26,12 @@ try
     }
 
     var lineCount = LineCounter.CountLines(text);
+    var charCount = CharCounter.CountChars(text);
 
-    // Count the number of words and lines in the text.
+    // Print the number of words, lines, and characters in the text.
     Console.WriteLine($"Word count: {wordCount}");
     Console.WriteLine($"Line count: {lineCount}");
+    Console.WriteLine($"Character count: {charCount}");
     return 0;
 }
 catch (IOException e)
