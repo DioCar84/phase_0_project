@@ -1,4 +1,5 @@
 ﻿namespace TextAnalyser.Tests;
+using TextAnalyser;
 
 public class UnitTest1
 {
@@ -6,8 +7,8 @@ public class UnitTest1
     public void HelloWorld_IsTwoWords_ReturnsTrue()
     {
         var text = "Hello World";
-        var result = text.Split(' ').Length == 2;
-        Assert.True(result);
+        var count = WordCounter.CountWords(text);
+        Assert.Equal(2, count);
     }
 
     [Fact]
