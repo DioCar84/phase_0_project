@@ -17,16 +17,19 @@ try
 
     // Read the file content as a string.
     string text = File.ReadAllText(args[0]);
-    var count = WordCounter.CountWords(text);
+    var wordCount = WordCounter.CountWords(text);
 
-    if (count == 0)
+    if (wordCount == 0)
     {
         Console.WriteLine("The file contains no words.");
         return 1;
     }
 
-    // Count the number of words in the text.
-    Console.WriteLine($"Word count: {count}");
+    var lineCount = LineCounter.CountLines(text);
+
+    // Count the number of words and lines in the text.
+    Console.WriteLine($"Word count: {wordCount}");
+    Console.WriteLine($"Line count: {lineCount}");
     return 0;
 }
 catch (IOException e)
