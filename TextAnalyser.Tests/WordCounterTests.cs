@@ -1,7 +1,7 @@
 ﻿namespace TextAnalyser.Tests;
 using TextAnalyser;
 
-public class UnitTest1
+public class WordCounterTests
 {
     [Fact]
     public void CountWords_TakesInTwoWords_ReturnsCorrectCount()
