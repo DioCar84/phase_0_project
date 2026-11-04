@@ -10,6 +10,7 @@ public static class WordCounter
             return 0;
         }
 
-        return text.Trim().Split(' ').Length;
+        // Split the text on any empty whitespace and count the resulting words
+        return text.Split([' ', '\t', '\n', '\r'], StringSplitOptions.RemoveEmptyEntries).Length;
     }
 }
