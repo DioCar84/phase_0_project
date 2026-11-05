@@ -58,6 +58,62 @@ Does the same as above but shows only the top 5 words. `N` must be a whole numbe
 
 Restores the NuGet packages, builds both console app and test projects and runs the tests in the test project
 
+## Errors I hit while building this
+
+### Compile-time error
+
+- **CS1503, a string passed where an int was required.** `CountTopWords(string text, int topN)` takes `topN` as an `int`, but I passed it the `--top` value straight from `args`, which is a `string`. The build failed with:
+
+  ```
+  error CS1503: Argument 2: cannot convert from 'string' to 'int'
+  ```
+
+  **Fix:** convert the value first with `int.TryParse(args[2], out int parsedTopN)`, then pass `parsedTopN`.
+- **Related, compile-time warnings:** a unit test that passed `null` to a counter produced the nullable warnings CS8600 and CS8604, because the counters take a non-nullable `string`. I deleted the test before committing: the counters don't accept null by design, and the compiler enforces that.
+
+### Runtime exception
+
+- **`IndexOutOfRangeException` when the program was run with no arguments.** `Program.cs` read `args[0]` before checking whether any arguments had been passed. With an empty `args` array, the program crashed with `Index was outside the bounds of the array.` and a stack trace.
+
+  **Fix:** check `args.Length == 0` first, print a message, and exit with code 1. The same check (`args.Length == 2`) stops `--top` with no number from reading `args[2]` and crashing the same way.
+
+### Logic errors
+
+The code compiled and ran, but gave the wrong answer.
+
+- **Word count off by one.** A planted bug: the `CountWords` loop started at `i = 1`, so the first word was never counted. This is written up in full, with the breakpoints, watches and call stack, in [BUGS.md](BUGS.md).
+- **Top words split on punctuation.** The first version split on `. , ! ?` as well as whitespace. So `3.14` became the two words `3` and `14`, and `end.Start` was counted as two words even though the word count said one. **Fix:** split on whitespace exactly like `WordCounter`, then trim punctuation from the ends of each word.
+- **Top words removed punctuation from inside words.** The second version dropped every punctuation character, so `it's` became `its` (and was merged with the real word `its`), and `3.14` became `314`. **Fix:** only check the first and last character of each word.
+- **Top words returned a `Dictionary`.** The words were sorted and then put into a `Dictionary`, which doesn't guarantee any order. The ordering tests only passed because of how .NET happens to implement it. **Fix:** return an ordered list, `IReadOnlyList<(string Word, int Count)>`.
+- **Logic errors in the tests themselves:**
+  - `CountTopWords_TrailingAndLeadingPunctuation_IsStripped` failed with `Expected: 3, Actual: 6`. The code was right: the input contained six `apple`s, and the expected value was wrong.
+  - `CountTopWords_OrdersByCountDescending` passed even with the sort removed. The most frequent word also appeared first in the input, so it never checked the ordering. **Fix:** put the most frequent word last in the input.
+  - `CountTopWords_InnerApostrophe_IsKept` passed while `it's` was being turned into `its`, because it only checked the count and not the word. **Fix:** assert on the word as well.
+
+## Merge conflict and how I resolved it
+
+**How it happened:** two branches were created from the same commit (`b5875eb`), where `CountWords` was just `return text.Split(' ').Length;`. Each branch changed that same line:
+
+| Branch | Change |
+|---|---|
+| `feature/empty-input` (`3879fac`) | Added a `string.IsNullOrWhiteSpace` check that returns `0`, and changed the return line to `text.Trim().Split(' ').Length` |
+| `feature/split-whitespace` (`bcbbfa4`) | Changed the return line to split on `' ', '\t', '\n', '\r'` with `StringSplitOptions.RemoveEmptyEntries` |
+
+`feature/split-whitespace` was merged first (PR #3). Merging `main` into `feature/empty-input` then conflicted on the return line, because both branches had rewritten it.
+
+**Resolution** (merge commit `7bbe3ec`, then PR #4):
+
+- **Kept the empty-input check** from `feature/empty-input`. It makes the intent clear: empty or whitespace-only text has 0 words.
+- **Kept the whitespace split** from `feature/split-whitespace`. It handles tabs, newlines and repeated spaces, which a split on `' '` alone does not.
+- **Dropped the `Trim()`.** It was redundant, because `RemoveEmptyEntries` already discards the empty entries that leading and trailing whitespace would create.
+
+**How I checked the result:**
+
+- Removed all conflict markers.
+- Read the merged method to confirm that it contains both changes and makes sense as a whole.
+- Ran `dotnet build` and `dotnet test`. The two tests that existed at that point pass on a clean checkout of `7bbe3ec`.
+- Unit tests covering the combined behaviour (empty, whitespace-only and mixed-whitespace input) were added straight afterwards in PR #5.
+
 ## Known limitations
 
 The aim of Phase 0 is to practise the .NET CLI, unit testing, debugging, Git and documentation, not to build a complete text analyser. The limitations below are known. They are deliberately left unresolved because fixing them is outside the scope of this project.
