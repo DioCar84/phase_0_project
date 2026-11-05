@@ -44,7 +44,15 @@ Restores the NuGet packages and then builds the console app and the test project
 
 `dotnet run --project TextAnalyser`
 
-Restores the NuGet packages, builds the console app and then executes the program. `--project` is required because `dotnet run` cannot run a solution file. Arguments for the program go after `--`, e.g. `dotnet run --project TextAnalyser -- sample.txt --top 5`
+Restores the NuGet packages, builds the console app and then executes the program. `--project` is required because `dotnet run` cannot run a solution file. Arguments for the program go after `--`. Usage: `<file> [--top N]`
+
+`dotnet run --project TextAnalyser -- TestFile.txt`
+
+Analyses `TestFile.txt` and shows the top 10 words, because 10 is the default when `--top` is not given
+
+`dotnet run --project TextAnalyser -- TestFile.txt --top 5`
+
+Does the same as above but shows only the top 5 words. `N` must be a whole number greater than 0
 
 `dotnet test`
 
@@ -59,3 +67,5 @@ The aim of Phase 0 is to practise the .NET CLI, unit testing, debugging, Git and
 - **Symbols count as words.** `$`, `+` and `£` on their own are listed as words in the top words, because only punctuation (`char.IsPunctuation`) is stripped, not symbols.
 - **Word count and top words can disagree.** A token made only of punctuation, such as `—` or `...`, is included in the word count but left out of the top words. So the top-word counts can add up to less than the word count.
 - **The character count is the number of UTF-16 code units (`string.Length`), not visible characters.** An emoji such as 😀 counts as 2, and a Windows line ending (`\r\n`) counts as 2.
+- **The file name must come before `--top`.** Arguments are read by position, so the file must be first. If `--top` comes first (for example `--top 5 TestFile.txt`), the program exits with code 1 and the message "Invalid argument. Only --top is supported as the second argument."
+- **Extra arguments after `--top N` are ignored.** For example, `TestFile.txt --top 5 extra` runs normally and exits with code 0. The `extra` is silently ignored, not rejected.
