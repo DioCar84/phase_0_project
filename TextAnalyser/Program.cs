@@ -27,11 +27,17 @@ try
 
     var lineCount = LineCounter.CountLines(text);
     var charCount = CharCounter.CountChars(text);
+    var topWords = TopWordsCounter.CountTopWords(text, 10);
 
     // Print the number of words, lines, and characters in the text.
     Console.WriteLine($"Word count: {wordCount}");
     Console.WriteLine($"Line count: {lineCount}");
     Console.WriteLine($"Character count: {charCount}");
+    Console.WriteLine("Top words:");
+    foreach (var (Word, Count) in topWords)
+    {
+        Console.WriteLine($"{Word}: {Count}");
+    }
     return 0;
 }
 catch (IOException e)
