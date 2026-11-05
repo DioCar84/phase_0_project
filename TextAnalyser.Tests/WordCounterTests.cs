@@ -34,4 +34,12 @@ public class WordCounterTests
         var count = WordCounter.CountWords(text);
         Assert.Equal(2, count);
     }
+
+    [Fact]
+    public void CountWords_NonBreakingSpace_SplitsWords()
+    {
+        var text = "Hello\u00A0World";
+        var count = WordCounter.CountWords(text);
+        Assert.Equal(2, count);
+    }
 }
