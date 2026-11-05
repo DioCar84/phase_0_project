@@ -49,3 +49,13 @@ Restores the NuGet packages, builds the console app and then executes the progra
 `dotnet test`
 
 Restores the NuGet packages, builds both console app and test projects and runs the tests in the test project
+
+## Known limitations
+
+The aim of Phase 0 is to practise the .NET CLI, unit testing, debugging, Git and documentation, not to build a complete text analyser. The limitations below are known. They are deliberately left unresolved because fixing them is outside the scope of this project.
+
+- **Top words strip only one punctuation character from each end of a word.** `world,` and `(world` both count as `world`, but `"world,"` becomes `world,` and `...world...` becomes `..world..`. Inner punctuation is kept on purpose, so `it's`, `e-mail` and `3.14` stay whole words.
+- **Abbreviations lose their final full stop.** `e.g.` is counted as the word `e.g`.
+- **Symbols count as words.** `$`, `+` and `£` on their own are listed as words in the top words, because only punctuation (`char.IsPunctuation`) is stripped, not symbols.
+- **Word count and top words can disagree.** A token made only of punctuation, such as `—` or `...`, is included in the word count but left out of the top words. So the top-word counts can add up to less than the word count.
+- **The character count is the number of UTF-16 code units (`string.Length`), not visible characters.** An emoji such as 😀 counts as 2, and a Windows line ending (`\r\n`) counts as 2.
